@@ -59,18 +59,18 @@
   "use strict";
   // Код писать здесь
 
-  // 2. Добавляем обработчик события на изменения полей ввода «Имя» и «Комментарий»
+  //  Добавляем обработчик события на изменения полей ввода «Имя» и «Комментарий»
   const nameInput = document.querySelector('.add-form-name');
   const commentInput = document.querySelector('.add-form-text');
 
   nameInput.addEventListener('input', handleInputChange);
   commentInput.addEventListener('input', handleInputChange);
 
-  // 3. Добавляем обработчик события на нажатие кнопки «Добавить»
+  //  Добавляем обработчик события на нажатие кнопки «Добавить»
   const addButton = document.querySelector('.add-form-button');
   addButton.addEventListener('click', handleAddComment);
 
-  // 6. Создаем переменную для всего списка комментариев
+  //  Создаем переменную для всего списка комментариев
   const commentsList = document.querySelector('.comments');
 
   function handleInputChange() {
@@ -88,11 +88,11 @@
       return;
     }
 
-    // 5. Получаем текущую дату и время
+    //  Получаем текущую дату и время
     const now = new Date();
     const formattedDate = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-    // 4. Создаем шаблонную строку комментария
+    //  Создаем шаблонную строку комментария
     const newCommentHTML = `
         <li class="comment">
           <div class="comment-header">
@@ -113,7 +113,7 @@
         </li>
       `;
 
-    // 7. Добавляем новый комментарий с помощью innerHTML
+    // Добавляем новый комментарий с помощью innerHTML
     commentsList.innerHTML += newCommentHTML;
 
     // Очищаем поля ввода после добавления комментария

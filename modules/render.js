@@ -3,23 +3,23 @@ import { comments } from './comments.js';
 import { addLikeEventListeners, addCommentClickEventListeners } from './eventHandlers.js';
 
 export function renderComments() {
-    const commentsList = document.querySelector('.comments');
+  const commentsList = document.querySelector('.comments');
 
-    if (!commentsList) {
-        console.error('Элемент .comments не найден!');
-        return;
-    }
+  if (!commentsList) {
+    console.error('Элемент .comments не найден!');
+    return;
+  }
 
-    commentsList.innerHTML = '';
+  commentsList.innerHTML = '';
 
-    comments.forEach(comment => {
-        const likeClass = comment.isLiked ? ' -active-like' : '';
+  comments.forEach(comment => {
+    const likeClass = comment.isLiked ? ' -active-like' : '';
 
-        const commentHTML = `
+    const commentHTML = `
       <li class="comment" data-id="${comment.id}">
         <div class="comment-header">
           <div>${sanitizeHTML(comment.name)}</div>
-          <div>${comment.date}</div>
+          <div>${formatDate(comment.date)}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
@@ -35,12 +35,22 @@ export function renderComments() {
       </li>
     `;
 
-        commentsList.innerHTML += commentHTML;
-    });
+    commentsList.innerHTML += commentHTML;
+  });
 
-    // Добавляем обработчики событий
-    addLikeEventListeners();
-    addCommentClickEventListeners();
+  addLikeEventListeners();
+  addCommentClickEventListeners();
 
-    console.log('Комментарии отрендерены: ' + comments.length);
+  console.log('Комментарии отрендерены: ' + comments.length);
+}
+
+function formatDate(apiDate) {
+  if (!apiDate) return '';
+
+  if (apiDate.includes('T')) {
+    const date = new Date(apiDate);
+    return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear().toString().slice(-2)} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  return apiDate;
 }

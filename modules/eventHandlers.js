@@ -1,4 +1,4 @@
-import { comments, updateComment, addComment, getCommentById } from './comments.js';
+import { comments, updateComment, addComment } from './comments.js';
 import { renderComments } from './render.js';
 import { sanitizeHTML } from './sanitize.js';
 
@@ -19,7 +19,7 @@ export function addCommentClickEventListeners() {
 function handleLikeClick(event) {
     event.stopPropagation();
     const commentElement = event.target.closest('.comment');
-    const commentId = parseInt(commentElement.dataset.id);
+    const commentId = commentElement.dataset.id;
     const commentIndex = comments.findIndex(comment => comment.id === commentId);
 
     if (commentIndex !== -1) {
@@ -40,8 +40,8 @@ function handleLikeClick(event) {
 
 function handleCommentClick(event) {
     const commentElement = event.target.closest('.comment');
-    const commentId = parseInt(commentElement.dataset.id);
-    const comment = getCommentById(commentId);
+    const commentId = commentElement.dataset.id;
+    const comment = comments.find(c => c.id === commentId);
     const nameInput = document.querySelector('.add-form-name');
     const commentInput = document.querySelector('.add-form-text');
 
@@ -52,9 +52,11 @@ function handleCommentClick(event) {
     }
 }
 
-export function handleAddComment() {
+export async function handleAddComment() {
     const nameInput = document.querySelector('.add-form-name');
     const commentInput = document.querySelector('.add-form-text');
+    const addButton = document.querySelector('.add-form-button');
+
     const name = nameInput.value.trim();
     const commentText = commentInput.value.trim();
 
@@ -63,23 +65,23 @@ export function handleAddComment() {
         return;
     }
 
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    addButton.disabled = true;
+    addButton.textContent = 'Добавляем...';
 
-    const newComment = {
-        id: Date.now(),
-        name: sanitizeHTML(name),
-        date: formattedDate,
-        text: sanitizeHTML(commentText),
-        likes: 0,
-        isLiked: false
-    };
+    try {
+        await addComment({ name, text: commentText });
+        renderComments();
 
-    addComment(newComment);
-    renderComments();
+        nameInput.value = '';
+        commentInput.value = '';
 
-    nameInput.value = '';
-    commentInput.value = '';
+    } catch (error) {
+        alert('Ошибка при добавлении комментария. Попробуйте еще раз.');
+        console.error('Ошибка:', error);
+    } finally {
+        addButton.disabled = false;
+        addButton.textContent = 'Написать';
+    }
 }
 
 export function initEventHandlers() {

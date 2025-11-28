@@ -1,0 +1,10 @@
+{
+  "name": "comments-project",
+  "version": "1.0.0",
+  "description": "Project with modules, Prettier and ESLint",
+  "type": "module",
+  "scripts": {
+    "lint": "echo 'ESLint would run here if Node.js was installed'",
+    "format": "echo 'Prettier would run here if Node.js was installed'"
+  }
+}

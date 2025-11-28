@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Проект "Комменты"</title>
+  <title>Проект "Комментарии"</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -10,40 +10,6 @@
 <body>
   <div class="container">
     <ul class="comments">
-      <li class="comment">
-        <div class="comment-header">
-          <div>Глеб Фокин</div>
-          <div>12.02.22 12:18</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Это будет первый комментарий на этой странице
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">3</span>
-            <button class="like-button"></button>
-          </div>
-        </div>
-      </li>
-      <li class="comment">
-        <div class="comment-header">
-          <div>Варвара Н.</div>
-          <div>13.02.22 19:22</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Мне нравится как оформлена эта страница! ❤
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">75</span>
-            <button class="like-button -active-like"></button>
-          </div>
-        </div>
-      </li>
     </ul>
     <div class="add-form">
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
@@ -53,75 +19,8 @@
       </div>
     </div>
   </div>
+
+  <script type="module" src="main.js"></script>
 </body>
-
-<script>
-  "use strict";
-  // Код писать здесь
-
-  //  Добавляем обработчик события на изменения полей ввода «Имя» и «Комментарий»
-  const nameInput = document.querySelector('.add-form-name');
-  const commentInput = document.querySelector('.add-form-text');
-
-  nameInput.addEventListener('input', handleInputChange);
-  commentInput.addEventListener('input', handleInputChange);
-
-  //  Добавляем обработчик события на нажатие кнопки «Добавить»
-  const addButton = document.querySelector('.add-form-button');
-  addButton.addEventListener('click', handleAddComment);
-
-  //  Создаем переменную для всего списка комментариев
-  const commentsList = document.querySelector('.comments');
-
-  function handleInputChange() {
-    // Можно добавить валидацию или другие действия при изменении полей
-    console.log('Поле ввода изменено');
-  }
-
-  function handleAddComment() {
-    const name = nameInput.value.trim();
-    const commentText = commentInput.value.trim();
-
-    // Проверяем, что оба поля заполнены
-    if (!name || !commentText) {
-      alert('Пожалуйста, заполните все поля');
-      return;
-    }
-
-    //  Получаем текущую дату и время
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-    //  Создаем шаблонную строку комментария
-    const newCommentHTML = `
-        <li class="comment">
-          <div class="comment-header">
-            <div>${name}</div>
-            <div>${formattedDate}</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              ${commentText}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">0</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-      `;
-
-    // Добавляем новый комментарий с помощью innerHTML
-    commentsList.innerHTML += newCommentHTML;
-
-    // Очищаем поля ввода после добавления комментария
-    nameInput.value = '';
-    commentInput.value = '';
-  }
-
-  console.log("It works!");
-</script>
 
 </html>

@@ -18,7 +18,7 @@ export function renderComments() {
     const commentHTML = `
       <li class="comment" data-id="${comment.id}">
         <div class="comment-header">
-          <div>${sanitizeHTML(comment.name)}</div>
+          <div>${sanitizeHTML(comment.author?.name || comment.name)}</div>
           <div>${formatDate(comment.date)}</div>
         </div>
         <div class="comment-body">
@@ -40,17 +40,22 @@ export function renderComments() {
 
   addLikeEventListeners();
   addCommentClickEventListeners();
-
-  console.log('Комментарии отрендерены: ' + comments.length);
 }
 
-function formatDate(apiDate) {
-  if (!apiDate) return '';
+function formatDate(dateString) {
+  if (!dateString) return '';
 
-  if (apiDate.includes('T')) {
-    const date = new Date(apiDate);
-    return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear().toString().slice(-2)} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    return dateString;
   }
 
-  return apiDate;
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString().slice(-2);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
 }

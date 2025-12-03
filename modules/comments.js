@@ -4,19 +4,15 @@ export let comments = [];
 
 export async function fetchComments() {
     try {
-        console.log('Загрузка комментариев из API...');
         const commentsFromAPI = await getComments();
-
         comments = commentsFromAPI.map(comment => ({
             ...comment,
-            isLiked: false,
-            likes: comment.likes || 0
+            isLiked: false
         }));
-
-        console.log('Комментарии загружены:', comments.length);
+        console.log('Загружено комментариев:', comments.length);
         return comments;
     } catch (error) {
-        console.error('Ошибка загрузки комментариев:', error);
+        console.error('Ошибка загрузки:', error);
         comments = [];
         throw error;
     }
@@ -24,19 +20,19 @@ export async function fetchComments() {
 
 export async function addComment({ name, text }) {
     try {
-        console.log('Отправка комментария в API...');
         const response = await postComment({ name, text });
 
         const newComment = {
             ...response,
-            isLiked: false
+            isLiked: false,
+            likes: 0
         };
 
         comments.push(newComment);
-        console.log('Комментарий добавлен:', newComment);
+        console.log('Добавлен комментарий:', newComment);
         return newComment;
     } catch (error) {
-        console.error('Ошибка добавления комментария:', error);
+        console.error('Ошибка добавления:', error);
         throw error;
     }
 }

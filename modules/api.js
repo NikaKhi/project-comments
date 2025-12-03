@@ -2,14 +2,8 @@ const BASE_URL = "https://wedev-api.sky.pro/api/v1/nika-khaimina/comments";
 
 export async function getComments() {
     try {
-        const response = await fetch(BASE_URL, {
-            method: "GET"
-        });
-
-        if (!response.ok) {
-            throw new Error("Ошибка при загрузке комментариев");
-        }
-
+        const response = await fetch(BASE_URL);
+        if (!response.ok) throw new Error("Ошибка загрузки");
         const data = await response.json();
         return data.comments;
     } catch (error) {
@@ -26,19 +20,20 @@ export async function postComment({ name, text }) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                name: name,
-                text: text
+                name: name.replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+                text: text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
             })
         });
 
         if (!response.ok) {
-            throw new Error("Ошибка при отправке комментария");
+            const errorText = await response.text();
+            console.error("Ошибка сервера:", errorText);
+            throw new Error(`Ошибка ${response.status}: ${errorText}`);
         }
 
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
-        console.error("Ошибка:", error);
+        console.error("Ошибка отправки:", error);
         throw error;
     }
 }

@@ -7,12 +7,12 @@ let eventListenersInitialized = false;
 export function initEventHandlers() {
     if (eventListenersInitialized) return;
 
-    console.log('🚀 Инициализация обработчиков событий...');
+    console.log(' Инициализация обработчиков событий...');
 
     // 1. Обработчик для кнопки "Написать"
     const addButton = document.querySelector('.add-form-button');
     if (addButton) {
-        console.log('✅ Найдена кнопка "Написать"');
+        console.log(' Найдена кнопка "Написать"');
         addButton.addEventListener('click', handleAddComment);
     }
 
@@ -23,19 +23,19 @@ export function initEventHandlers() {
 }
 
 function setupEventDelegation() {
-    console.log('⚙️ Настраиваем делегирование событий...');
+    console.log(' Настраиваем делегирование событий...');
 
     // Используем document для надежности
     document.addEventListener('click', function (event) {
         // ЛАЙКИ - это самое важное!
         if (event.target.classList.contains('like-button')) {
-            console.log('❤️ Клик по лайку!');
+            console.log(' Клик по лайку!');
             event.preventDefault();
             event.stopPropagation();
 
             const commentElement = event.target.closest('.comment');
             if (!commentElement) {
-                console.log('❌ Не найден родительский комментарий');
+                console.log(' Не найден родительский комментарий');
                 return;
             }
 
@@ -44,7 +44,7 @@ function setupEventDelegation() {
 
             // Переключаем лайк
             if (toggleLike(commentId)) {
-                console.log('✅ Лайк переключен');
+                console.log(' Лайк переключен');
 
                 // Меняем стиль кнопки
                 const button = event.target;
@@ -61,10 +61,10 @@ function setupEventDelegation() {
                 const comment = getCommentById(commentId);
                 if (counter && comment) {
                     counter.textContent = comment.likes;
-                    console.log('✅ Счетчик обновлен:', comment.likes);
+                    console.log(' Счетчик обновлен:', comment.likes);
                 }
             } else {
-                console.log('❌ Не удалось переключить лайк');
+                console.log(' Не удалось переключить лайк');
             }
             return;
         }
@@ -79,24 +79,24 @@ function setupEventDelegation() {
             if (comment && commentInput) {
                 commentInput.value = `> ${sanitizeHTML(comment.name)}: ${sanitizeHTML(comment.text)}\n\n`;
                 commentInput.focus();
-                console.log('📝 Текст комментария подставлен для ответа');
+                console.log(' Текст комментария подставлен для ответа');
             }
         }
     });
 
-    console.log('✅ Делегирование событий настроено');
+    console.log(' Делегирование событий настроено');
 }
 
 // Обработчик добавления комментария
 async function handleAddComment() {
-    console.log('📝 Обработка добавления комментария...');
+    console.log(' Обработка добавления комментария...');
 
     const nameInput = document.querySelector('.add-form-name');
     const commentInput = document.querySelector('.add-form-text');
     const addButton = document.querySelector('.add-form-button');
 
     if (!nameInput || !commentInput || !addButton) {
-        console.error('❌ Не найдены элементы формы');
+        console.error(' Не найдены элементы формы');
         return;
     }
 
@@ -127,17 +127,17 @@ async function handleAddComment() {
     addButton.textContent = 'Добавляем...';
 
     try {
-        console.log('🔄 Отправка комментария в API...');
+        console.log(' Отправка комментария в API...');
         await addComment({ name, text: commentText });
 
-        console.log('✅ Комментарий добавлен');
+        console.log(' Комментарий добавлен');
 
         // Очищаем форму
         nameInput.value = '';
         commentInput.value = '';
 
         // Перерисовываем
-        console.log('🔄 Перерисовка комментариев...');
+        console.log(' Перерисовка комментариев...');
         renderComments();
 
         // Переинициализируем обработчики
@@ -145,7 +145,7 @@ async function handleAddComment() {
         initEventHandlers();
 
     } catch (error) {
-        console.error('❌ Ошибка добавления:', error);
+        console.error(' Ошибка добавления:', error);
         alert('Ошибка при добавлении комментария: ' + error.message);
     } finally {
         // Разблокируем кнопку

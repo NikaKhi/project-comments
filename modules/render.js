@@ -2,12 +2,12 @@ import { sanitizeHTML } from './sanitize.js';
 import { comments } from './comments.js';
 
 export function renderComments() {
-  console.log('🎨 Рендер комментариев...');
+  console.log(' Рендер комментариев...');
 
   const commentsList = document.querySelector('.comments');
 
   if (!commentsList) {
-    console.error('❌ Элемент .comments не найден!');
+    console.error(' Элемент .comments не найден!');
     return;
   }
 
@@ -15,11 +15,11 @@ export function renderComments() {
 
   if (comments.length === 0) {
     commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Нет комментариев</div>';
-    console.log('📭 Нет комментариев для отображения');
+    console.log(' Нет комментариев для отображения');
     return;
   }
 
-  console.log(`📊 Отображаем ${comments.length} комментариев`);
+  console.log(` Отображаем ${comments.length} комментариев`);
 
   comments.forEach(comment => {
     const likeClass = comment.isLiked ? ' -active-like' : '';
@@ -75,5 +75,5 @@ export function renderComments() {
     commentsList.innerHTML += commentHTML;
   });
 
-  console.log('✅ Рендер завершен');
+  console.log(' Рендер завершен');
 }

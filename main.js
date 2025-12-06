@@ -3,25 +3,25 @@ import { initEventHandlers } from './modules/eventHandlers.js';
 import { fetchComments } from './modules/comments.js';
 
 async function initApp() {
-    console.log('🚀 ===== ЗАПУСК ПРИЛОЖЕНИЯ =====');
+    console.log(' ===== ЗАПУСК ПРИЛОЖЕНИЯ =====');
 
     const commentsList = document.querySelector('.comments');
     commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Загрузка комментариев...</div>';
 
     try {
-        console.log('1. 📥 Загружаем комментарии из API...');
+        console.log('1.  Загружаем комментарии из API...');
         await fetchComments();
 
-        console.log('2. 🎨 Рендерим комментарии...');
+        console.log('2.  Рендерим комментарии...');
         renderComments();
 
-        console.log('3. ⚙️ Инициализируем обработчики событий...');
+        console.log('3.  Инициализируем обработчики событий...');
         initEventHandlers();
 
-        console.log('✅ ===== ПРИЛОЖЕНИЕ ЗАПУЩЕНО УСПЕШНО =====');
+        console.log(' ===== ПРИЛОЖЕНИЕ ЗАПУЩЕНО УСПЕШНО =====');
 
     } catch (error) {
-        console.error('❌ ===== ОШИБКА ЗАПУСКА =====', error);
+        console.error(' ===== ОШИБКА ЗАПУСКА =====', error);
         commentsList.innerHTML = `
       <div style="color: #bcec30; text-align: center; padding: 20px;">
         <p>Ошибка: ${error.message}</p>

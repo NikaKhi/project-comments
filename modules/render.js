@@ -1,29 +1,62 @@
 import { sanitizeHTML } from './sanitize.js';
 import { comments } from './comments.js';
-import { addLikeEventListeners, addCommentClickEventListeners } from './eventHandlers.js';
 
 export function renderComments() {
+  console.log('🎨 Рендер комментариев...');
+
   const commentsList = document.querySelector('.comments');
 
   if (!commentsList) {
-    console.error('Элемент .comments не найден!');
+    console.error('❌ Элемент .comments не найден!');
     return;
   }
 
   commentsList.innerHTML = '';
 
+  if (comments.length === 0) {
+    commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Нет комментариев</div>';
+    console.log('📭 Нет комментариев для отображения');
+    return;
+  }
+
+  console.log(`📊 Отображаем ${comments.length} комментариев`);
+
   comments.forEach(comment => {
-    // Определяем класс для лайка
     const likeClass = comment.isLiked ? ' -active-like' : '';
 
     // Форматируем дату
-    const formattedDate = formatDate(comment.date);
+    let displayDate = 'Только что';
+    if (comment.date) {
+      try {
+        const date = new Date(comment.date);
+        if (!isNaN(date.getTime())) {
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+
+          if (diffMins < 1) {
+            displayDate = 'Только что';
+          } else if (diffMins < 60) {
+            displayDate = `${diffMins} минут назад`;
+          } else {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear().toString().slice(-2);
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            displayDate = `${day}.${month}.${year} ${hours}:${minutes}`;
+          }
+        }
+      } catch (e) {
+        displayDate = comment.date;
+      }
+    }
 
     const commentHTML = `
       <li class="comment" data-id="${comment.id}">
         <div class="comment-header">
           <div>${sanitizeHTML(comment.name)}</div>
-          <div>${formattedDate}</div>
+          <div>${displayDate}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
@@ -42,26 +75,5 @@ export function renderComments() {
     commentsList.innerHTML += commentHTML;
   });
 
-  // Добавляем обработчики событий
-  addLikeEventListeners();
-  addCommentClickEventListeners();
-}
-
-// Функция форматирования даты
-function formatDate(dateString) {
-  if (!dateString) return '';
-
-  try {
-    const date = new Date(dateString);
-
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear().toString().slice(-2);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-
-    return `${day}.${month}.${year} ${hours}:${minutes}`;
-  } catch (error) {
-    return dateString;
-  }
+  console.log('✅ Рендер завершен');
 }

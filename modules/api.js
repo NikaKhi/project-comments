@@ -14,20 +14,19 @@ export async function getComments() {
 
 export async function postComment({ name, text }) {
     try {
+        // Создаем FormData вместо JSON
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('text', text);
+
         const response = await fetch(BASE_URL, {
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: name.replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-                text: text.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-            })
+            // НЕ добавляем Content-Type заголовок!
+            body: formData
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Ошибка сервера:", errorText);
             throw new Error(`Ошибка ${response.status}: ${errorText}`);
         }
 

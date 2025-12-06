@@ -13,13 +13,17 @@ export function renderComments() {
   commentsList.innerHTML = '';
 
   comments.forEach(comment => {
+    // Определяем класс для лайка
     const likeClass = comment.isLiked ? ' -active-like' : '';
+
+    // Форматируем дату
+    const formattedDate = formatDate(comment.date);
 
     const commentHTML = `
       <li class="comment" data-id="${comment.id}">
         <div class="comment-header">
-          <div>${sanitizeHTML(comment.author?.name || comment.name)}</div>
-          <div>${formatDate(comment.date)}</div>
+          <div>${sanitizeHTML(comment.name)}</div>
+          <div>${formattedDate}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
@@ -38,24 +42,26 @@ export function renderComments() {
     commentsList.innerHTML += commentHTML;
   });
 
+  // Добавляем обработчики событий
   addLikeEventListeners();
   addCommentClickEventListeners();
 }
 
+// Функция форматирования даты
 function formatDate(dateString) {
   if (!dateString) return '';
 
-  const date = new Date(dateString);
+  try {
+    const date = new Date(dateString);
 
-  if (isNaN(date.getTime())) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  } catch (error) {
     return dateString;
   }
-
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString().slice(-2);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  return `${day}.${month}.${year} ${hours}:${minutes}`;
 }

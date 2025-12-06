@@ -1,48 +1,49 @@
-import { comments, updateComment, addComment } from './comments.js';
+import { comments, updateCommentLikes, addComment, getCommentById } from './comments.js';
 import { renderComments } from './render.js';
 import { sanitizeHTML } from './sanitize.js';
 
+// Добавляем обработчики лайков
 export function addLikeEventListeners() {
     const likeButtons = document.querySelectorAll('.like-button');
     likeButtons.forEach(button => {
-        button.removeEventListener('click', handleLikeClick);
-        button.addEventListener('click', handleLikeClick);
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            handleLikeClick(event);
+        });
     });
 }
 
+// Добавляем обработчики кликов по комментариям
 export function addCommentClickEventListeners() {
     const commentElements = document.querySelectorAll('.comment');
     commentElements.forEach(commentElement => {
-        commentElement.removeEventListener('click', handleCommentClick);
-        commentElement.addEventListener('click', handleCommentClick);
+        commentElement.addEventListener('click', (event) => {
+            if (!event.target.classList.contains('like-button')) {
+                handleCommentClick(event);
+            }
+        });
     });
 }
 
+// Обработчик лайков (работает локально)
 function handleLikeClick(event) {
-    event.stopPropagation();
     const commentElement = event.target.closest('.comment');
+    if (!commentElement) return;
+
     const commentId = commentElement.dataset.id;
-    const comment = comments.find(c => c.id === commentId);
 
-    if (comment) {
-        const newLikedState = !comment.isLiked;
-        const likeChange = newLikedState ? 1 : -1;
-
-        updateComment(commentId, {
-            isLiked: newLikedState,
-            likes: comment.likes + likeChange
-        });
-
+    if (updateCommentLikes(commentId)) {
         renderComments();
     }
 }
 
+// Обработчик клика по комментарию (для ответа)
 function handleCommentClick(event) {
-    if (event.target.classList.contains('like-button')) return;
-
     const commentElement = event.target.closest('.comment');
+    if (!commentElement) return;
+
     const commentId = commentElement.dataset.id;
-    const comment = comments.find(c => c.id === commentId);
+    const comment = getCommentById(commentId);
     const commentInput = document.querySelector('.add-form-text');
 
     if (comment && commentInput) {
@@ -51,6 +52,7 @@ function handleCommentClick(event) {
     }
 }
 
+// Обработчик добавления комментария
 export async function handleAddComment() {
     const nameInput = document.querySelector('.add-form-name');
     const commentInput = document.querySelector('.add-form-text');
@@ -59,41 +61,40 @@ export async function handleAddComment() {
     const name = nameInput.value.trim();
     const commentText = commentInput.value.trim();
 
+    // Валидация
     if (!name || !commentText) {
         alert('Заполните все поля');
         return;
     }
 
-    if (name.length < 3) {
-        alert('Имя должно быть не менее 3 символов');
-        return;
-    }
-
-    if (commentText.length < 3) {
-        alert('Комментарий должен быть не менее 3 символов');
-        return;
-    }
-
+    // Блокируем кнопку во время отправки
     addButton.disabled = true;
     addButton.textContent = 'Добавляем...';
 
     try {
         await addComment({ name, text: commentText });
 
+        // Очищаем форму
         nameInput.value = '';
         commentInput.value = '';
 
+        // Перерисовываем комментарии
         renderComments();
+
     } catch (error) {
         alert('Ошибка при добавлении комментария: ' + error.message);
         console.error('Ошибка:', error);
     } finally {
+        // Разблокируем кнопку
         addButton.disabled = false;
         addButton.textContent = 'Написать';
     }
 }
 
+// Инициализация обработчиков
 export function initEventHandlers() {
     const addButton = document.querySelector('.add-form-button');
-    addButton.addEventListener('click', handleAddComment);
+    if (addButton) {
+        addButton.addEventListener('click', handleAddComment);
+    }
 }

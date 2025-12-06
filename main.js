@@ -5,26 +5,28 @@ import { fetchComments } from './modules/comments.js';
 async function init() {
     console.log('Запуск приложения...');
 
-    try {
-        const commentsList = document.querySelector('.comments');
-        commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Загрузка комментариев...</div>';
+    // Показываем индикатор загрузки
+    const commentsList = document.querySelector('.comments');
+    commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Загрузка комментариев...</div>';
 
+    try {
+        // Загружаем комментарии из API
         await fetchComments();
 
-        if (window.comments && window.comments.length === 0) {
-            commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Нет комментариев</div>';
-        } else {
-            renderComments();
-        }
+        // Рендерим комментарии
+        renderComments();
 
+        // Инициализируем обработчики
         initEventHandlers();
 
-        console.log('Приложение запущено успешно!');
+        console.log('Приложение успешно запущено!');
+
     } catch (error) {
-        const commentsList = document.querySelector('.comments');
-        commentsList.innerHTML = '<div style="color: #bcec30; text-align: center; padding: 20px;">Ошибка загрузки. Проверьте подключение.</div>';
+        // Показываем сообщение об ошибке
+        commentsList.innerHTML = '<div style="color: #bcec30; text-align: center; padding: 20px;">Ошибка загрузки комментариев</div>';
         console.error('Ошибка запуска:', error);
     }
 }
 
+// Запускаем когда DOM загружен
 document.addEventListener('DOMContentLoaded', init);

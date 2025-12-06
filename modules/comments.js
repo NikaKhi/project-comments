@@ -4,12 +4,13 @@ export let comments = [];
 
 export async function fetchComments() {
     try {
-        const commentsFromAPI = await getComments();
-        comments = commentsFromAPI.map(comment => ({
-            ...comment,
-            isLiked: false
-        }));
-        console.log('Загружено комментариев:', comments.length);
+        comments = await getComments();
+
+        // Добавляем поле isLiked для локального хранения лайков
+        comments.forEach(comment => {
+            comment.isLiked = false;
+        });
+
         return comments;
     } catch (error) {
         console.error('Ошибка загрузки:', error);
@@ -22,14 +23,13 @@ export async function addComment({ name, text }) {
     try {
         const response = await postComment({ name, text });
 
+        // Добавляем локальное поле isLiked
         const newComment = {
             ...response,
-            isLiked: false,
-            likes: 0
+            isLiked: false
         };
 
         comments.push(newComment);
-        console.log('Добавлен комментарий:', newComment);
         return newComment;
     } catch (error) {
         console.error('Ошибка добавления:', error);
@@ -37,10 +37,11 @@ export async function addComment({ name, text }) {
     }
 }
 
-export function updateComment(commentId, updates) {
-    const commentIndex = comments.findIndex(comment => comment.id === commentId);
-    if (commentIndex !== -1) {
-        comments[commentIndex] = { ...comments[commentIndex], ...updates };
+export function updateCommentLikes(commentId) {
+    const comment = comments.find(c => c.id === commentId);
+    if (comment) {
+        comment.isLiked = !comment.isLiked;
+        comment.likes += comment.isLiked ? 1 : -1;
         return true;
     }
     return false;

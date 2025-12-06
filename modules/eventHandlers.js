@@ -13,78 +13,76 @@ export function initEventHandlers() {
     const addButton = document.querySelector('.add-form-button');
     if (addButton) {
         console.log(' Найдена кнопка "Написать"');
+        // Удаляем старый обработчик перед добавлением нового
+        addButton.removeEventListener('click', handleAddComment);
         addButton.addEventListener('click', handleAddComment);
     }
 
     // 2. Делегирование событий для динамических элементов
-    setupEventDelegation();
+    // Удаляем старые обработчики делегирования
+    document.removeEventListener('click', handleDocumentClick);
+    document.addEventListener('click', handleDocumentClick);
 
     eventListenersInitialized = true;
 }
 
-function setupEventDelegation() {
-    console.log(' Настраиваем делегирование событий...');
+// Выносим обработчик клика в отдельную функцию
+function handleDocumentClick(event) {
+    // ЛАЙКИ - это самое важное!
+    if (event.target.classList.contains('like-button')) {
+        console.log(' Клик по лайку!');
+        event.preventDefault();
+        event.stopPropagation();
 
-    // Используем document для надежности
-    document.addEventListener('click', function (event) {
-        // ЛАЙКИ - это самое важное!
-        if (event.target.classList.contains('like-button')) {
-            console.log(' Клик по лайку!');
-            event.preventDefault();
-            event.stopPropagation();
-
-            const commentElement = event.target.closest('.comment');
-            if (!commentElement) {
-                console.log(' Не найден родительский комментарий');
-                return;
-            }
-
-            const commentId = commentElement.dataset.id;
-            console.log('ID комментария для лайка:', commentId);
-
-            // Переключаем лайк
-            if (toggleLike(commentId)) {
-                console.log(' Лайк переключен');
-
-                // Меняем стиль кнопки
-                const button = event.target;
-                const isLiked = button.classList.contains('-active-like');
-
-                if (isLiked) {
-                    button.classList.remove('-active-like');
-                } else {
-                    button.classList.add('-active-like');
-                }
-
-                // Обновляем счетчик
-                const counter = commentElement.querySelector('.likes-counter');
-                const comment = getCommentById(commentId);
-                if (counter && comment) {
-                    counter.textContent = comment.likes;
-                    console.log(' Счетчик обновлен:', comment.likes);
-                }
-            } else {
-                console.log(' Не удалось переключить лайк');
-            }
+        const commentElement = event.target.closest('.comment');
+        if (!commentElement) {
+            console.log(' Не найден родительский комментарий');
             return;
         }
 
-        // КЛИК ПО КОММЕНТАРИЮ ДЛЯ ОТВЕТА
-        const commentElement = event.target.closest('.comment');
-        if (commentElement && !event.target.classList.contains('like-button')) {
-            const commentId = commentElement.dataset.id;
-            const comment = getCommentById(commentId);
-            const commentInput = document.querySelector('.add-form-text');
+        const commentId = commentElement.dataset.id;
+        console.log('ID комментария для лайка:', commentId);
 
-            if (comment && commentInput) {
-                commentInput.value = `> ${sanitizeHTML(comment.name)}: ${sanitizeHTML(comment.text)}\n\n`;
-                commentInput.focus();
-                console.log(' Текст комментария подставлен для ответа');
+        // Переключаем лайк
+        if (toggleLike(commentId)) {
+            console.log(' Лайк переключен');
+
+            // Меняем стиль кнопки
+            const button = event.target;
+            const isLiked = button.classList.contains('-active-like');
+
+            if (isLiked) {
+                button.classList.remove('-active-like');
+            } else {
+                button.classList.add('-active-like');
             }
-        }
-    });
 
-    console.log(' Делегирование событий настроено');
+            // Обновляем счетчик
+            const counter = commentElement.querySelector('.likes-counter');
+            const comment = getCommentById(commentId);
+            if (counter && comment) {
+                counter.textContent = comment.likes;
+                console.log(' Счетчик обновлен:', comment.likes);
+            }
+        } else {
+            console.log(' Не удалось переключить лайк');
+        }
+        return;
+    }
+
+    // КЛИК ПО КОММЕНТАРИЮ ДЛЯ ОТВЕТА
+    const commentElement = event.target.closest('.comment');
+    if (commentElement && !event.target.classList.contains('like-button')) {
+        const commentId = commentElement.dataset.id;
+        const comment = getCommentById(commentId);
+        const commentInput = document.querySelector('.add-form-text');
+
+        if (comment && commentInput) {
+            commentInput.value = `> ${sanitizeHTML(comment.name)}: ${sanitizeHTML(comment.text)}\n\n`;
+            commentInput.focus();
+            console.log(' Текст комментария подставлен для ответа');
+        }
+    }
 }
 
 // Обработчик добавления комментария
@@ -140,9 +138,8 @@ async function handleAddComment() {
         console.log(' Перерисовка комментариев...');
         renderComments();
 
-        // Переинициализируем обработчики
-        eventListenersInitialized = false;
-        initEventHandlers();
+        // НЕ переинициализируем обработчики - делегирование и так работает!
+        // Просто перерисовываем комментарии
 
     } catch (error) {
         console.error(' Ошибка добавления:', error);

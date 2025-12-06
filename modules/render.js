@@ -21,11 +21,18 @@ export function renderComments() {
 
   console.log(` Отображаем ${comments.length} комментариев`);
 
+  // Массив русских названий месяцев
+  const monthNames = [
+    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+  ];
+
   comments.forEach(comment => {
     const likeClass = comment.isLiked ? ' -active-like' : '';
 
-    // Форматируем дату
+    // Форматируем дату в формате "17 декабря 2023 г. 15:48"
     let displayDate = 'Только что';
+
     if (comment.date) {
       try {
         const date = new Date(comment.date);
@@ -34,20 +41,21 @@ export function renderComments() {
           const diffMs = now - date;
           const diffMins = Math.floor(diffMs / 60000);
 
+          // Если комментарий создан менее 1 минуты назад
           if (diffMins < 1) {
             displayDate = 'Только что';
-          } else if (diffMins < 60) {
-            displayDate = `${diffMins} минут назад`;
           } else {
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear().toString().slice(-2);
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
-            displayDate = `${day}.${month}.${year} ${hours}:${minutes}`;
+
+            displayDate = `${day} ${month} ${year} г. ${hours}:${minutes}`;
           }
         }
       } catch (e) {
+        console.error('Ошибка форматирования даты:', e);
         displayDate = comment.date;
       }
     }

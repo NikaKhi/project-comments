@@ -2,46 +2,57 @@ const BASE_URL = "https://wedev-api.sky.pro/api/v1/nika-khaimina/comments";
 
 export async function getComments() {
     try {
-        console.log('GET запрос к:', BASE_URL);
         const response = await fetch(BASE_URL);
-        console.log('GET статус:', response.status);
 
-        if (!response.ok) throw new Error("Ошибка загрузки");
+        if (response.status === 500) {
+            throw new Error("Сервер сломался, попробуй позже");
+        }
 
-        const data = await response.json();
-        console.log('GET ответ:', data);
-        return data;
+        if (!response.ok) {
+            throw new Error("Ошибка загрузки комментариев");
+        }
+
+        return await response.json();
     } catch (error) {
-        console.error("GET ошибка:", error);
+        // Обработка ошибки сети
+        if (error.name === "TypeError" && error.message === "Failed to fetch") {
+            throw new Error("Кажется, у вас сломался интернет, попробуйте позже");
+        }
         throw error;
     }
 }
 
-export async function postComment({ name, text }) {
+export async function postComment({ name, text, forceError = false }) {
     try {
-        console.log('POST запрос с:', { name, text });
-
         const response = await fetch(BASE_URL, {
             method: "POST",
             body: JSON.stringify({
                 name: name,
-                text: text
+                text: text,
+                forceError: forceError
             })
         });
 
-        console.log('POST статус:', response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('POST ошибка текст:', errorText);
-            throw new Error(`Ошибка ${response.status}: ${errorText}`);
+        // Обработка 400 ошибки 
+        if (response.status === 400) {
+            throw new Error("Имя и комментарий должны быть не короче 3 символов");
         }
 
-        const data = await response.json();
-        console.log('POST ответ:', data);
-        return data;
+        // Обработка 500 ошибки
+        if (response.status === 500) {
+            throw new Error("Сервер сломался, попробуй позже");
+        }
+
+        if (!response.ok) {
+            throw new Error("Ошибка при добавлении комментария");
+        }
+
+        return await response.json();
     } catch (error) {
-        console.error("POST ошибка:", error);
+        // Обработка ошибки сети
+        if (error.name === "TypeError" && error.message === "Failed to fetch") {
+            throw new Error("Кажется, у вас сломался интернет, попробуйте позже");
+        }
         throw error;
     }
 }

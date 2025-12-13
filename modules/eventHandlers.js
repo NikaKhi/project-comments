@@ -2,49 +2,49 @@ import { comments, toggleLike, addComment, getCommentById } from './comments.js'
 import { renderComments } from './render.js';
 import { sanitizeHTML } from './sanitize.js';
 
+let formData = {
+    name: '',
+    text: ''
+};
+
 let eventListenersInitialized = false;
 
 export function initEventHandlers() {
     if (eventListenersInitialized) return;
 
-    console.log(' Инициализация обработчиков событий...');
+    const nameInput = document.querySelector('.add-form-name');
+    const textInput = document.querySelector('.add-form-text');
 
+    if (nameInput && textInput) {
+        nameInput.addEventListener('input', (e) => {
+            formData.name = e.target.value;
+        });
+
+        textInput.addEventListener('input', (e) => {
+            formData.text = e.target.value;
+        });
+
+        if (formData.name) nameInput.value = formData.name;
+        if (formData.text) textInput.value = formData.text;
+    }
+
+    // кнопка "Написать"
     const addButton = document.querySelector('.add-form-button');
     if (addButton) {
-        console.log(' Найдена кнопка "Написать"');
         addButton.addEventListener('click', handleAddComment);
     }
 
-   
-    setupEventDelegation();
-
-    eventListenersInitialized = true;
-}
-
-function setupEventDelegation() {
-    console.log(' Настраиваем делегирование событий...');
-
     document.addEventListener('click', function (event) {
-        
         if (event.target.classList.contains('like-button')) {
-            console.log(' Клик по лайку!');
             event.preventDefault();
             event.stopPropagation();
 
             const commentElement = event.target.closest('.comment');
-            if (!commentElement) {
-                console.log(' Не найден родительский комментарий');
-                return;
-            }
+            if (!commentElement) return;
 
             const commentId = commentElement.dataset.id;
-            console.log('ID комментария для лайка:', commentId);
 
-            // Переключаем лайк
             if (toggleLike(commentId)) {
-                console.log(' Лайк переключен');
-
-               
                 const button = event.target;
                 const isLiked = button.classList.contains('-active-like');
 
@@ -58,15 +58,11 @@ function setupEventDelegation() {
                 const comment = getCommentById(commentId);
                 if (counter && comment) {
                     counter.textContent = comment.likes;
-                    console.log(' Счетчик обновлен:', comment.likes);
                 }
-            } else {
-                console.log(' Не удалось переключить лайк');
             }
             return;
         }
 
-        // КЛИК ПО КОММЕНТАРИЮ ДЛЯ ОТВЕТА
         const commentElement = event.target.closest('.comment');
         if (commentElement && !event.target.classList.contains('like-button')) {
             const commentId = commentElement.dataset.id;
@@ -76,89 +72,78 @@ function setupEventDelegation() {
             if (comment && commentInput) {
                 commentInput.value = `> ${sanitizeHTML(comment.name)}: ${sanitizeHTML(comment.text)}\n\n`;
                 commentInput.focus();
-                console.log(' Текст комментария подставлен для ответа');
+            
+                formData.text = commentInput.value;
             }
         }
     });
 
-    console.log(' Делегирование событий настроено');
+    eventListenersInitialized = true;
 }
 
-// Обработчик добавления комментария
-async function handleAddComment() {
-    console.log(' Обработка добавления комментария...');
+function validateForm(name, text) {
+    if (name.length < 3 || text.length < 3) {
+        alert('Имя и комментарий должны быть не короче 3 символов');
+        return false;
+    }
+    return true;
+}
 
+async function handleAddComment() {
     const nameInput = document.querySelector('.add-form-name');
     const commentInput = document.querySelector('.add-form-text');
     const addButton = document.querySelector('.add-form-button');
     const addForm = document.querySelector('.add-form');
     const loadingIndicator = document.querySelector('.loading-add');
 
-    if (!nameInput || !commentInput || !addButton || !addForm) {
-        console.error(' Не найдены элементы формы');
-        return;
-    }
+    if (!nameInput || !commentInput || !addButton || !addForm) return;
 
     const name = nameInput.value.trim();
     const commentText = commentInput.value.trim();
 
-    console.log('Введенные данные:', { name, commentText });
-
-    // Валидация
-    if (!name || !commentText) {
-        alert('Пожалуйста, заполните все поля');
-        return;
-    }
-
-    if (name.length < 1) {
-        alert('Введите имя');
-        return;
-    }
-
-    if (commentText.length < 1) {
-        alert('Введите комментарий');
+    if (!validateForm(name, commentText)) {
+        formData.name = name;
+        formData.text = commentText;
         return;
     }
 
     addForm.style.display = 'none';
     if (loadingIndicator) {
         loadingIndicator.style.display = 'block';
-        loadingIndicator.textContent = 'Комментарий добавляется...';
     }
 
+    addButton.disabled = true;
+    const originalText = addButton.textContent;
+    addButton.textContent = 'Добавляем...';
+
     try {
-        console.log(' Отправка комментария в API...');
-        await addComment({ name, text: commentText });
+        await addComment({
+            name,
+            text: commentText,
+            forceError: false 
+        });
 
-        console.log(' Комментарий добавлен');
-
-        // Очищаем форму
+        // Очищаем форму и данные
         nameInput.value = '';
         commentInput.value = '';
+        formData.name = '';
+        formData.text = '';
 
-        
-        console.log(' Перерисовка комментариев...');
         renderComments();
 
     } catch (error) {
-        console.error(' Ошибка добавления:', error);
-        alert('Ошибка при добавлении комментария: ' + error.message);
+        nameInput.value = formData.name;
+        commentInput.value = formData.text;
 
-      
-        addForm.style.display = 'flex';
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-        return;
+        // Показываем alert с текстом ошибки
+        alert(error.message);
     } finally {
-        
         addForm.style.display = 'flex';
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
         }
 
-        
         addButton.disabled = false;
-        addButton.textContent = 'Написать';
+        addButton.textContent = originalText;
     }
 }

@@ -2,22 +2,81 @@
 <html>
 
 <head>
-  <title>Проект "Комментарии"</title>
+  <title>Проект "Комменты"</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Стили для лоадеров и форм */
+    .loader {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading,
+    .loading-add {
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      margin: 20px 0;
+      border: 2px solid #4a6fa5;
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .login-input,
+    .password-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #4a6fa5;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background: #bcec30;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-form-name[readonly] {
+      background-color: #f0f0f0;
+      color: #666;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
-    <ul class="comments">
-    </ul>
-    <div class="add-form">
-      <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
-      <div class="add-form-row">
-        <button class="add-form-button">Написать</button>
-      </div>
-    </div>
+    <!-- Контент рендерится JavaScript -->
   </div>
 
   <script type="module" src="main.js"></script>

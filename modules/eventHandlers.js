@@ -1,91 +1,106 @@
-import { comments, updateComment, addComment, getCommentById } from './comments.js';
-import { renderComments } from './render.js';
+import { toggleLike, getCommentById, addComment } from './comments.js';
+import { renderComments, renderAuthSection, renderAddForm } from './render.js';
 import { sanitizeHTML } from './sanitize.js';
+import { login, logout, isAuthenticated, getCurrentUser } from './auth.js';
+import { renderLoginPage } from './login.js';
+import { renderApp } from '../main.js';
 
-export function addLikeEventListeners() {
-    const likeButtons = document.querySelectorAll('.like-button');
-    likeButtons.forEach(button => {
-        button.addEventListener('click', handleLikeClick);
-    });
-}
+export function initEventHandlers() {
+    // Делегирование событий
+    document.addEventListener('click', function (event) {
+        
+        if (event.target.classList.contains('like-button')) {
+            event.preventDefault();
+            event.stopPropagation();
 
-export function addCommentClickEventListeners() {
-    const commentElements = document.querySelectorAll('.comment');
-    commentElements.forEach(commentElement => {
-        commentElement.addEventListener('click', handleCommentClick);
-    });
-}
+            const commentElement = event.target.closest('.comment');
+            if (!commentElement) return;
 
-function handleLikeClick(event) {
-    event.stopPropagation();
-    const commentElement = event.target.closest('.comment');
-    const commentId = parseInt(commentElement.dataset.id);
-    const commentIndex = comments.findIndex(comment => comment.id === commentId);
+            const commentId = commentElement.dataset.id;
 
-    if (commentIndex !== -1) {
-        if (comments[commentIndex].isLiked) {
-            updateComment(commentId, {
-                isLiked: false,
-                likes: comments[commentIndex].likes - 1
-            });
-        } else {
-            updateComment(commentId, {
-                isLiked: true,
-                likes: comments[commentIndex].likes + 1
-            });
+            if (toggleLike(commentId)) {
+                const button = event.target;
+                const isLiked = button.classList.contains('-active-like');
+
+                if (isLiked) {
+                    button.classList.remove('-active-like');
+                } else {
+                    button.classList.add('-active-like');
+                }
+
+                const counter = commentElement.querySelector('.likes-counter');
+                const comment = getCommentById(commentId);
+                if (counter && comment) {
+                    counter.textContent = comment.likes;
+                }
+            }
+            return;
         }
-        renderComments();
-    }
+
+        // ССЫЛКА НА ЛОГИН
+        if (event.target.classList.contains('login-link')) {
+            event.preventDefault();
+            renderLoginPage();
+            return;
+        }
+
+        // КНОПКА ВЫХОДА
+        if (event.target.classList.contains('logout-button')) {
+            event.preventDefault();
+            logout();
+            renderApp();
+            return;
+        }
+
+        // КНОПКА "НАПИСАТЬ"
+        if (event.target.classList.contains('add-form-button')) {
+            event.preventDefault();
+            handleAddComment();
+            return;
+        }
+    });
 }
 
-function handleCommentClick(event) {
-    const commentElement = event.target.closest('.comment');
-    const commentId = parseInt(commentElement.dataset.id);
-    const comment = getCommentById(commentId);
-    const nameInput = document.querySelector('.add-form-name');
+async function handleAddComment() {
     const commentInput = document.querySelector('.add-form-text');
+    const addButton = document.querySelector('.add-form-button');
+    const addForm = document.querySelector('.add-form');
+    const loadingIndicator = document.querySelector('.loading-add');
 
-    if (comment) {
-        nameInput.value = '';
-        commentInput.value = `> ${sanitizeHTML(comment.name)}: ${sanitizeHTML(comment.text)}\n\n`;
-        commentInput.focus();
-    }
-}
+    if (!commentInput || !addButton || !addForm) return;
 
-export function handleAddComment() {
-    const nameInput = document.querySelector('.add-form-name');
-    const commentInput = document.querySelector('.add-form-text');
-    const name = nameInput.value.trim();
     const commentText = commentInput.value.trim();
 
-    if (!name || !commentText) {
-        alert('Пожалуйста, заполните все поля');
+    if (commentText.length < 3) {
+        alert('Комментарий должен быть не короче 3 символов');
         return;
     }
 
-    const now = new Date();
-    const formattedDate = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear().toString().slice(-2)} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    addForm.style.display = 'none';
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
 
-    const newComment = {
-        id: Date.now(),
-        name: sanitizeHTML(name),
-        date: formattedDate,
-        text: sanitizeHTML(commentText),
-        likes: 0,
-        isLiked: false
-    };
+    addButton.disabled = true;
+    const originalText = addButton.textContent;
+    addButton.textContent = 'Добавляем...';
 
-    addComment(newComment);
-    renderComments();
+    try {
+        await addComment(commentText);
 
-    nameInput.value = '';
-    commentInput.value = '';
-}
+        commentInput.value = '';
 
-export function initEventHandlers() {
-    const addButton = document.querySelector('.add-form-button');
-    if (addButton) {
-        addButton.addEventListener('click', handleAddComment);
-        console.log('Обработчик кнопки "Написать" добавлен');
+        renderComments();
+
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        addForm.style.display = 'flex';
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+
+        addButton.disabled = false;
+        addButton.textContent = originalText;
     }
 }

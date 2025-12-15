@@ -1,44 +1,78 @@
-import { renderComments } from './modules/render.js';
+import { renderComments, renderAuthSection, renderAddForm } from './modules/render.js';
 import { initEventHandlers } from './modules/eventHandlers.js';
-import { fetchComments } from './modules/comments.js';
+import { getComments } from './modules/comments.js';
+import { getCurrentUser } from './modules/auth.js';
+import { renderLoginPage } from './modules/login.js';
 
-async function initApp() {
-    const commentsList = document.querySelector('.comments');
+export function renderApp() {
+    const container = document.querySelector('.container');
+
+    container.innerHTML = `
+        <!-- Лоадер при загрузке комментариев -->
+        <div class="loading" style="display: none;">
+            <div style="margin-bottom: 15px;">Загрузка комментариев...</div>
+            <div class="loader"></div>
+        </div>
+
+        <!-- Секция авторизации -->
+        <div class="auth-section"></div>
+
+        <!-- Список комментариев -->
+        <ul class="comments"></ul>
+
+        <!-- Форма добавления комментария -->
+        <div class="add-form-container"></div>
+    `;
+
+
+    loadAndRenderApp();
+}
+
+async function loadAndRenderApp() {
     const loadingElement = document.querySelector('.loading');
+    const commentsList = document.querySelector('.comments');
 
-    // Показываем лоадер при загрузке
     if (loadingElement) {
         loadingElement.style.display = 'block';
     }
 
-    commentsList.innerHTML = '';
+    if (commentsList) {
+        commentsList.innerHTML = '';
+    }
 
     try {
-        await fetchComments();
+        
+        await getComments();
+
+        await getCurrentUser();
+
         renderComments();
+        renderAuthSection();
+        renderAddForm();
+
         initEventHandlers();
 
     } catch (error) {
-        // Показываем alert с ошибкой загрузки
-        if (error.message === "Кажется, у вас сломался интернет, попробуйте позже" ||
-            error.message === "Сервер сломался, попробуй позже") {
-            alert(error.message);
+        console.error('Ошибка загрузки:', error);
+        if (commentsList) {
+            commentsList.innerHTML = `
+                <div style="color: #ff6b6b; text-align: center; padding: 20px;">
+                    <p>Не удалось загрузить комментарии</p>
+                    <button onclick="location.reload()" style="background: #bcec30; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                        Попробовать снова
+                    </button>
+                </div>
+            `;
         }
-
-        commentsList.innerHTML = `
-      <div style="color: #bcec30; text-align: center; padding: 20px;">
-        <p>Не удалось загрузить комментарии</p>
-        <button onclick="location.reload()" style="background: #bcec30; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-          Попробовать снова
-        </button>
-      </div>
-    `;
     } finally {
-        // Скрываем лоадер
         if (loadingElement) {
             loadingElement.style.display = 'none';
         }
     }
+}
+
+function initApp() {
+    renderApp();
 }
 
 if (document.readyState === 'loading') {

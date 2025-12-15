@@ -6,6 +6,7 @@
   <meta charset="utf-8" />
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Стили для лоадеров и форм */
     .loader {
       display: inline-block;
       width: 30px;
@@ -38,37 +39,44 @@
       border: 2px solid #4a6fa5;
     }
 
-    .loading-add {
-      font-size: 18px;
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .login-input,
+    .password-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #4a6fa5;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background: #bcec30;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-form-name[readonly] {
+      background-color: #f0f0f0;
+      color: #666;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <!-- Лоадер при загрузке комментариев -->
-    <div class="loading" style="display: none;">
-      <div style="margin-bottom: 15px;">Загрузка комментариев...</div>
-      <div class="loader"></div>
-    </div>
-
-    <ul class="comments">
-      <!-- Комментарии загружаются здесь -->
-    </ul>
-
-    <!-- Лоадер при добавлении комментария -->
-    <div class="loading-add" style="display: none;">
-      <div style="margin-bottom: 15px;">Комментарий добавляется...</div>
-      <div class="loader"></div>
-    </div>
-
-    <div class="add-form">
-      <input type="text" class="add-form-name" placeholder="Введите ваше имя" required />
-      <textarea class="add-form-text" placeholder="Введите ваш коментарий" rows="4" required></textarea>
-      <div class="add-form-row">
-        <button class="add-form-button">Написать</button>
-      </div>
-    </div>
+    <!-- Контент рендерится JavaScript -->
   </div>
 
   <script type="module" src="main.js"></script>

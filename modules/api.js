@@ -1,58 +1,90 @@
-const BASE_URL = "https://wedev-api.sky.pro/api/v1/nika-khaimina/comments";
+const BASE_URL_V2 = "https://wedev-api.sky.pro/api/v2/nika-khaimina/comments";
+const LOGIN_URL = "https://wedev-api.sky.pro/api/user/login";
+const USER_URL = "https://wedev-api.sky.pro/api/user";
 
-export async function getComments() {
-    try {
-        const response = await fetch(BASE_URL);
+let authToken = localStorage.getItem('authToken') || null;
 
-        if (response.status === 500) {
-            throw new Error("Сервер сломался, попробуй позже");
-        }
-
-        if (!response.ok) {
-            throw new Error("Ошибка загрузки комментариев");
-        }
-
-        return await response.json();
-    } catch (error) {
-        // Обработка ошибки сети
-        if (error.name === "TypeError" && error.message === "Failed to fetch") {
-            throw new Error("Кажется, у вас сломался интернет, попробуйте позже");
-        }
-        throw error;
+export function setAuthToken(token) {
+    authToken = token;
+    if (token) {
+        localStorage.setItem('authToken', token);
+    } else {
+        localStorage.removeItem('authToken');
     }
 }
 
-export async function postComment({ name, text, forceError = false }) {
-    try {
-        const response = await fetch(BASE_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                name: name,
-                text: text,
-                forceError: forceError
-            })
-        });
+export function getAuthToken() {
+    return authToken;
+}
 
-        // Обработка 400 ошибки 
-        if (response.status === 400) {
-            throw new Error("Имя и комментарий должны быть не короче 3 символов");
-        }
+export function isAuthenticated() {
+    return !!authToken;
+}
 
-        // Обработка 500 ошибки
-        if (response.status === 500) {
-            throw new Error("Сервер сломался, попробуй позже");
-        }
+export function logout() {
+    setAuthToken(null);
+}
 
-        if (!response.ok) {
-            throw new Error("Ошибка при добавлении комментария");
-        }
+function getHeaders(withAuth = true) {
+    const headers = {
+        'Content-Type': 'application/json',
+    };
 
-        return await response.json();
-    } catch (error) {
-        // Обработка ошибки сети
-        if (error.name === "TypeError" && error.message === "Failed to fetch") {
-            throw new Error("Кажется, у вас сломался интернет, попробуйте позже");
-        }
-        throw error;
+    if (withAuth && authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
     }
+
+    return headers;
+}
+
+// GET запрос для получения комментариев
+export function getComments() {
+    return fetch(BASE_URL_V2, {
+        headers: getHeaders(false)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Ошибка загрузки: ${response.status}`);
+        }
+        return response.json();
+    });
+}
+
+// POST запрос для добавления комментария
+export function addCommentApi(text) {
+    return fetch(BASE_URL_V2, {
+        method: "POST",
+        headers: getHeaders(true),
+        body: JSON.stringify({ text })
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Ошибка добавления: ${response.status}`);
+        }
+        return response.json();
+    });
+}
+
+// POST запрос для авторизации
+export function loginApi(login, password) {
+    return fetch(LOGIN_URL, {
+        method: "POST",
+        headers: getHeaders(false),
+        body: JSON.stringify({ login, password })
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Ошибка авторизации: ${response.status}`);
+        }
+        return response.json();
+    });
+}
+
+// GET запрос для получения данных пользователя
+export function getUserApi() {
+    return fetch(USER_URL, {
+        headers: getHeaders(true)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Ошибка получения пользователя: ${response.status}`);
+        }
+        return response.json();
+    });
 }

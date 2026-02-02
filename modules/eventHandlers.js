@@ -1,6 +1,5 @@
 import { toggleLike, getCommentById, addComment } from './comments.js';
 import { renderComments, renderAuthSection, renderAddForm } from './render.js';
-import { sanitizeHTML } from './sanitize.js';
 import { login, logout, isAuthenticated, getCurrentUser } from './auth.js';
 import { renderLoginPage } from './login.js';
 import { renderApp } from '../main.js';
@@ -8,7 +7,7 @@ import { renderApp } from '../main.js';
 export function initEventHandlers() {
     // Делегирование событий
     document.addEventListener('click', function (event) {
-        
+
         if (event.target.classList.contains('like-button')) {
             event.preventDefault();
             event.stopPropagation();
@@ -17,6 +16,11 @@ export function initEventHandlers() {
             if (!commentElement) return;
 
             const commentId = commentElement.dataset.id;
+
+            if (!isAuthenticated()) {
+                alert('Для оценки комментария необходимо авторизоваться');
+                return;
+            }
 
             if (toggleLike(commentId)) {
                 const button = event.target;
@@ -73,6 +77,7 @@ async function handleAddComment() {
 
     if (commentText.length < 3) {
         alert('Комментарий должен быть не короче 3 символов');
+        commentInput.focus();
         return;
     }
 
@@ -90,7 +95,13 @@ async function handleAddComment() {
 
         commentInput.value = '';
 
+        // Обновляем отображение
         renderComments();
+        renderAuthSection();
+        renderAddForm();
+
+        // Повторно инициализируем обработчики для новых элементов
+        initEventHandlers();
 
     } catch (error) {
         alert(error.message);

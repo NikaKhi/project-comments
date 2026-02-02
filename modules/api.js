@@ -26,9 +26,7 @@ export function logout() {
 }
 
 function getHeaders(withAuth = true) {
-    const headers = {
-        'Content-Type': 'application/json',
-    };
+    const headers = {};
 
     if (withAuth && authToken) {
         headers['Authorization'] = `Bearer ${authToken}`;
@@ -67,7 +65,6 @@ export function addCommentApi(text) {
 export function loginApi(login, password) {
     return fetch(LOGIN_URL, {
         method: "POST",
-        headers: getHeaders(false),
         body: JSON.stringify({ login, password })
     }).then((response) => {
         if (!response.ok) {

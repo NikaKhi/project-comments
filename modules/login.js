@@ -15,6 +15,7 @@ export function renderLoginPage() {
                         class="login-input" 
                         placeholder="Логин" 
                         required 
+                        autocomplete="username"
                     />
                 </div>
                 
@@ -24,6 +25,7 @@ export function renderLoginPage() {
                         class="password-input" 
                         placeholder="Пароль" 
                         required 
+                        autocomplete="current-password"
                     />
                 </div>
                 
@@ -39,6 +41,12 @@ export function renderLoginPage() {
             </div>
         </div>
     `;
+
+    // Фокус на поле логина
+    const loginInput = document.querySelector('.login-input');
+    if (loginInput) {
+        loginInput.focus();
+    }
 
     // Обработчики
     const loginForm = document.querySelector('.login-form');
@@ -68,7 +76,7 @@ export function renderLoginPage() {
                 renderApp();
             })
             .catch((error) => {
-                showError(error.message || 'Ошибка авторизации');
+                showError(error.message || 'Ошибка авторизации. Проверьте логин и пароль.');
             })
             .finally(() => {
                 loginButton.disabled = false;
@@ -84,5 +92,8 @@ export function renderLoginPage() {
     function showError(message) {
         loginError.textContent = message;
         loginError.style.display = 'block';
+        setTimeout(() => {
+            loginError.style.display = 'none';
+        }, 5000);
     }
 }

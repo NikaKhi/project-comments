@@ -2,7 +2,6 @@ import { renderComments, renderAuthSection, renderAddForm } from './modules/rend
 import { initEventHandlers } from './modules/eventHandlers.js';
 import { getComments } from './modules/comments.js';
 import { getCurrentUser } from './modules/auth.js';
-import { renderLoginPage } from './modules/login.js';
 
 export function renderApp() {
     const container = document.querySelector('.container');
@@ -24,7 +23,6 @@ export function renderApp() {
         <div class="add-form-container"></div>
     `;
 
-
     loadAndRenderApp();
 }
 
@@ -41,23 +39,30 @@ async function loadAndRenderApp() {
     }
 
     try {
-        
-        await getComments();
+        // Загружаем комментарии
+        const comments = await getComments();
 
+        if (comments.length === 0) {
+            commentsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Нет комментариев</div>';
+        }
+
+        // Загружаем пользователя (если авторизован)
         await getCurrentUser();
 
+        // Рендерим компоненты
         renderComments();
         renderAuthSection();
         renderAddForm();
 
+        // Инициализируем обработчики событий
         initEventHandlers();
 
     } catch (error) {
         console.error('Ошибка загрузки:', error);
         if (commentsList) {
             commentsList.innerHTML = `
-                <div style="color: #ff6b6b; text-align: center; padding: 20px;">
-                    <p>Не удалось загрузить комментарии</p>
+                <div style="color: #ff6b6b; text-align: center; padding: 20px; background: rgba(255, 107, 107, 0.1); border-radius: 10px;">
+                    <p>Не удалось загрузить комментарии: ${error.message}</p>
                     <button onclick="location.reload()" style="background: #bcec30; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
                         Попробовать снова
                     </button>

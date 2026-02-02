@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 
 <head>
-  <title>Проект "Комменты"</title>
+  <title>Проект "Комментарии"</title>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css" />
   <style>
     /* Стили для лоадеров и форм */
@@ -54,6 +55,14 @@
       border-radius: 5px;
       background: rgba(255, 255, 255, 0.1);
       color: white;
+      font-size: 16px;
+    }
+
+    .login-input:focus,
+    .password-input:focus {
+      outline: none;
+      border-color: #bcec30;
+      box-shadow: 0 0 0 2px rgba(188, 236, 48, 0.2);
     }
 
     .login-button {
@@ -65,11 +74,29 @@
       font-weight: bold;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
+      transition: opacity 0.2s;
+    }
+
+    .login-button:hover {
+      opacity: 0.9;
+    }
+
+    .login-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .add-form-name[readonly] {
-      background-color: #f0f0f0;
-      color: #666;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+      cursor: not-allowed;
+    }
+
+    .auth-section {
+      width: 100%;
+      max-width: 596px;
+      margin-bottom: 20px;
     }
   </style>
 </head>

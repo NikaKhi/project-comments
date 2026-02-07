@@ -76,7 +76,19 @@ export function renderLoginPage() {
                 renderApp();
             })
             .catch((error) => {
-                showError(error.message || 'Ошибка авторизации. Проверьте логин и пароль.');
+                // Преобразуем код ошибки в понятное сообщение
+                let errorMessage = 'Неверный логин или пароль';
+
+                if (error.message && error.message.includes('401')) {
+                    errorMessage = 'Неверный логин или пароль';
+                } else if (error.message && error.message.includes('400')) {
+                    errorMessage = 'Неверный логин или пароль';
+                } else if (error.message) {
+                    // Если есть какое-то другое сообщение об ошибке, используем его
+                    errorMessage = error.message;
+                }
+
+                showError(errorMessage);
             })
             .finally(() => {
                 loginButton.disabled = false;

@@ -40,8 +40,9 @@ export function getCurrentUser() {
             }
             return null;
         })
-        .catch(() => {
+        .catch((error) => {
             currentUser = null;
+            console.error('Ошибка получения пользователя:', error);
             return null;
         });
 }

@@ -41,7 +41,7 @@ export function getComments() {
         headers: getHeaders(false)
     }).then((response) => {
         if (!response.ok) {
-            throw new Error(`Ошибка загрузки: ${response.status}`);
+            throw new Error(`Ошибка загрузки комментариев: ${response.status}`);
         }
         return response.json();
     });
@@ -55,7 +55,7 @@ export function addCommentApi(text) {
         body: JSON.stringify({ text })
     }).then((response) => {
         if (!response.ok) {
-            throw new Error(`Ошибка добавления: ${response.status}`);
+            throw new Error(`Ошибка добавления комментария: ${response.status}`);
         }
         return response.json();
     });
@@ -67,6 +67,9 @@ export function loginApi(login, password) {
         method: "POST",
         body: JSON.stringify({ login, password })
     }).then((response) => {
+        if (response.status === 400 || response.status === 401) {
+            throw new Error(`${response.status}`);
+        }
         if (!response.ok) {
             throw new Error(`Ошибка авторизации: ${response.status}`);
         }
